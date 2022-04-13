@@ -20,19 +20,17 @@ class ModelStatus : public BaseStatus {
 
   protected:
     void set_state(double progress, string status, bool busy);
-    void populate_table();
-
 
   public:
     ModelStatus(string model_id) : BaseStatus(
       "ModelStatus",
-      "model_status",
+      "delphimodel",
       model_id
     ), model_id(model_id) {}
 
     ModelStatus(string model_id, Database* database) : BaseStatus(
       "ModelStatus",
-      "model_status",
+      "delphimodel",
       model_id,
       database
     ), model_id(model_id) {}

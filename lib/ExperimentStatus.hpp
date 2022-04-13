@@ -17,7 +17,6 @@ class ExperimentStatus : public BaseStatus {
 
   protected:
     void set_state(double progress, string status, bool busy);
-    void populate_table();
 
   public:
     ExperimentStatus(
@@ -25,7 +24,7 @@ class ExperimentStatus : public BaseStatus {
         string model_id 
     ) : BaseStatus(
       "ExperimentStatus",
-      "experiment_status",
+      "causemosasyncexperimentresult",
       experiment_id
     ), experiment_id(experiment_id), model_id(model_id){}
 
@@ -35,7 +34,7 @@ class ExperimentStatus : public BaseStatus {
         Database* database
     ) : BaseStatus(
       "ExperimentStatus",
-      "experiment_status",
+      "causemosasyncexperimentresult",
       experiment_id,
       database
     ), experiment_id(experiment_id), model_id(model_id){}

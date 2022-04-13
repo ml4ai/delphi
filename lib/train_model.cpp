@@ -82,7 +82,7 @@ void AnalysisGraph::run_train_model(int res,
     TrainingStopper training_stopper;
 
     Logger logger;
-    string logger_label = "AnalysisGraph::run_train_model";
+    logger.info("AnalysisGraph::run_train_model");
 
     ModelStatus ms(this->id);
 
@@ -221,8 +221,8 @@ void AnalysisGraph::run_train_model(int res,
     #endif
 
     string text = "Burning " + to_string(burn) + " samples out...";
-    logger.log_info(logger_label, text);
-    logger.log_info(logger_label, "#    log_likelihood");
+    logger.info(" " + text);
+    logger.info(" #    log_likelihood");
 //    cout << "\n" << text << endl;
     for (int i : trange(burn)) {
       ms.increment_progress(training_step);
@@ -248,7 +248,7 @@ void AnalysisGraph::run_train_model(int res,
       this->log_likelihoods[i] = this->log_likelihood;
       char buf[200];
       sprintf(buf, "%4d %.10f", i, this->log_likelihood);
-      logger.log_info(logger_label, buf);
+      logger.info(" " + string(buf));
  //     cout << buf << endl;
 
       if (this->log_likelihood > this->log_likelihood_MAP) {
@@ -261,7 +261,7 @@ void AnalysisGraph::run_train_model(int res,
 
       if(training_stopper.stop_training(this->log_likelihoods, i)) {
 	string text = "Model training stopped early at sample " + to_string(i);
-	logger.log_info(logger_label, text);
+	logger.info(" " + text);
         cout << text << endl;
         break;
       }

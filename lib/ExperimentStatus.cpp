@@ -5,6 +5,15 @@ using namespace std;
 using namespace delphi::utils;
 using json = nlohmann::json;
 
+/*
+sqlite> pragma table_info (causemosasyncexperimentresult);
+0|id|VARCHAR|1||1
+1|status|VARCHAR|0||0
+2|experimentType|VARCHAR|0||0
+3|results|TEXT|0||0
+4|progress|VARCHAR|0||0
+*/
+
 // set our data to the start state
 void ExperimentStatus::enter_initial_state() {
   set_state(0.0, "Empty", false);
@@ -44,23 +53,4 @@ void ExperimentStatus::set_state(
   data[STATUS] = status;
   data[BUSY] = busy;
   write_data(data);
-}
-
-void ExperimentStatus::populate_table() {
-  string query = "SELECT " + COL_ID + " FROM " + EXPERIMENT_TABLE + ";";
-  vector<string> ids = database->read_column_text(query);
-  for(string id : ids) {
-    json row = database->select_row(EXPERIMENT_TABLE, id, COL_STATUS);
-    if(row.contains(COL_STATUS)) {
-      string status = row[COL_STATUS];
-      if(status == COMPLETED) {
-        json data;
-        data[EXPERIMENT_ID] = id;
-        data[PROGRESS] = 1.0;
-        data[STATUS] = "complete";
-        data[BUSY] = false;
-        insert_data(id, data);
-      }
-    }
-  }
 }

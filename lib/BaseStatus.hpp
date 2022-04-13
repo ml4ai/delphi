@@ -23,7 +23,6 @@ class BaseStatus {
     bool delete_database = false; // true if we created a new database
     void scheduler();
     bool insert_query(string query);
-    Logger logger;
 
   protected:
     Database* database = nullptr; // connection to Delphi DB
@@ -32,9 +31,7 @@ class BaseStatus {
     void stop_recording_progress();
     bool write_data(json data);
     void insert_data(string id, json data);
-    virtual void populate_table() = 0;
-    void log_info(string msg){logger.log_info(class_name, msg);}
-    void log_error(string msg){logger.log_error(class_name, msg);}
+    Logger logger;
 
   public:
     BaseStatus(
@@ -61,8 +58,8 @@ class BaseStatus {
     void increment_progress(double i) { progress += i;}
 
     // database table columns
-    const string COL_ID = "id"; // database column, not exported
-    const string COL_DATA = "data"; // database column, not exported
+    const string COL_ID = "id"; // table column, primary key
+    const string COL_DATA = "progress"; // table column where we store our JSON
 
     // serialized JSON fields
     const string PROGRESS = "progressPercentage"; // double [0,1]

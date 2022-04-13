@@ -1,7 +1,14 @@
 #include "ModelStatus.hpp"
 #include <nlohmann/json.hpp>
 
-// set our data to the start state
+/*
+sqlite> pragma table_info (delphimodel);
+0|id|VARCHAR|1||1
+1|model|VARCHAR|0||0
+2|progress|VARCHAR|0||0
+*/
+
+// Check that the database table contains our row
 void ModelStatus::enter_initial_state() {
   set_state(0.0, "Empty", false);
 }
@@ -31,31 +38,14 @@ void ModelStatus::enter_finished_state(string status) {
 // set the complete data for the database row
 void ModelStatus::set_state(double progress, string status, bool busy) {
   set_progress(progress);
-  nlohmann::json data;
-  data[MODEL_ID] = model_id;
-  data[PROGRESS] = progress;
-  data[STATUS] = status;
-  data[BUSY] = busy;
-  write_data(data);
+  nlohmann::json state;
+  state[MODEL_ID] = model_id;
+  state[PROGRESS] = progress;
+  state[STATUS] = status;
+  state[BUSY] = busy;
+  logger.info("ModelStatus set_state(,,)");
+  logger.info("ModelStatus state = " + state.dump());
+
+  write_data(state);
 }
 
-// load our table with ids of completed experiments
-void ModelStatus::populate_table() {
-  string query = "SELECT " + COL_ID + " FROM " + MODEL_TABLE + ";";
-  vector<string> ids = database->read_column_text(query);
-  for(string id : ids) {
-    json row = database->select_row(MODEL_TABLE, id, COL_MODEL);
-    json model = json::parse((string)row[COL_MODEL]);
-    if(!model.empty()) {
-      bool trained = model.value(TRAINED, false);
-      if(trained) {
-        json data;
-        data[MODEL_ID] = id;
-        data[PROGRESS] = 1.0;
-        data[STATUS] = TRAINED;
-        data[BUSY] = false;
-	insert_data(id, data);
-      }
-    }
-  }
-}
