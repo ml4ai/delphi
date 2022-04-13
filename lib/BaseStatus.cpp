@@ -27,7 +27,7 @@ bool BaseStatus::insert_query(string query) {
 
 // Make a clean start with valid data
 void BaseStatus::initialize() {
-  logger.info("BaseStatus::initialize()");
+  logger.info("initialize()");
 }
 
 
@@ -77,7 +77,7 @@ void BaseStatus::stop_recording_progress(){
 
 // return the data JSON for the primary key
 json BaseStatus::read_data() {
-  string label = "BaseStatus read_data() ";
+  string label = "read_data() ";
   logger.info(label);
 
   // get the progress column from the database row
@@ -91,7 +91,7 @@ json BaseStatus::read_data() {
     + primary_key
     + "';";
 
-  logger.info("BaseStatus query: " + query);
+  logger.info("query: " + query);
 
   vector<string> results = database->read_column_text(query);
 
@@ -101,17 +101,17 @@ json BaseStatus::read_data() {
     data = json::parse(result);
   }
 
-  logger.info("BaseStatus read: " + data.dump());
+  logger.info("result: " + data.dump());
 
   return data;
 }
 
 // write data at the primary key row, return true if successful.
 bool BaseStatus::write_data(json data) {
-  string label = "BaseStatus write_data(json data) ";
+  string label = "write_data(json data) ";
   string data_string = data.dump();
   logger.info(label);
-  logger.info("BaseStatus json data: " + data_string);
+  logger.info("json data: " + data_string);
 
   string query = "UPDATE "
     + table_name
@@ -125,7 +125,33 @@ bool BaseStatus::write_data(json data) {
     + primary_key
     +  "';";
 
-  logger.info("BaseStatus query: " + query);
+  logger.info("query: " + query);
 
   return insert_query(query);
 }
+
+// set the complete data for the database row
+void BaseStatus::set_state(
+    double progress,
+    string status,
+    bool busy) {
+  logger.info("set_state("
+    + to_string(progress)
+    + ", "
+    + status
+    + ", "
+    + (busy ? "true" : "false")
+    + ")");
+
+  set_progress(progress);
+  json state;
+  state["id"] = primary_key;
+  state[PROGRESS] = progress;
+  state[STATUS] = status;
+  state[BUSY] = busy;
+
+  logger.info("state = " + state.dump());
+
+  write_data(state);
+}
+

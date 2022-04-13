@@ -17,9 +17,7 @@ class ModelStatus : public BaseStatus {
 
   private:
     string model_id = "N/A";
-
-  protected:
-    void set_state(double progress, string status, bool busy);
+    Logger logger = Logger("ModelStatus");
 
   public:
     ModelStatus(string model_id) : BaseStatus(

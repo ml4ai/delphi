@@ -14,6 +14,10 @@ Logger::Logger() {
   filename = get_log_file_path();
 } 
 
+Logger::Logger(string name): name(name + " ") {
+  filename = get_log_file_path();
+} 
+
 // Determine log filename for our runtime environment
 string Logger::get_log_file_path() {
 
@@ -57,7 +61,7 @@ void Logger::write_to_logfile(string text, ios_base::openmode mode) {
   fstream file;
   file.open(filename, mode);
   if (file.is_open()) {
-    file << timestamp() << text << endl;
+    file << timestamp() << name << text << endl;
     file.close();
   }
   else {

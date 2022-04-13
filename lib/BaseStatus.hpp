@@ -31,7 +31,8 @@ class BaseStatus {
     void stop_recording_progress();
     bool write_data(json data);
     void insert_data(string id, json data);
-    Logger logger;
+    void set_state(double progress, string status, bool busy);
+    Logger logger = Logger("BaseStatus");
 
   public:
     BaseStatus(

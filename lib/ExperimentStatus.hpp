@@ -14,9 +14,7 @@ class ExperimentStatus : public BaseStatus {
     void scheduler();
     string experiment_id = "N/A";
     string model_id = "N/A";
-
-  protected:
-    void set_state(double progress, string status, bool busy);
+    Logger logger = Logger("ExperimentStatus");
 
   public:
     ExperimentStatus(
