@@ -45,8 +45,11 @@ vector<string> Database::read_column_text(string query) {
     sqlite3_stmt* stmt = nullptr;
     int rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        matches.push_back(string(
-            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0))));
+	const unsigned char* col_text = sqlite3_column_text(stmt, 0);
+	if(col_text != nullptr) {
+            string row_str = string(reinterpret_cast<const char*>(col_text));
+            matches.push_back(row_str);
+	} 
     }
     sqlite3_finalize(stmt);
     stmt = nullptr;
