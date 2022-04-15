@@ -1,10 +1,10 @@
-#The Delphi config file
+# The Delphi config file
 Runtime settable parameters for Model training
 
-###File location:
+### File location
 delphi/data/config.json
 
-###Fields:
+### Fields
 ```json
 {
   "config_version": "1.0.0",
