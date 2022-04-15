@@ -45,8 +45,11 @@ vector<string> Database::read_column_text(string query) {
     sqlite3_stmt* stmt = nullptr;
     int rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        matches.push_back(string(
-            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0))));
+	const unsigned char* col_0_text = sqlite3_column_text(stmt, 0);
+	if(col_0_text != nullptr) {
+            string row_str = string(reinterpret_cast<const char*>(col_0_text));
+            matches.push_back(row_str);
+	} 
     }
     sqlite3_finalize(stmt);
     stmt = nullptr;
@@ -93,10 +96,14 @@ json Database::select_delphimodel_row(string modelId) {
         "SELECT * from delphimodel WHERE id='" + modelId + "'  LIMIT 1;";
     int rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        matches["id"] =
-            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-        matches["model"] =
-            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
+	const unsigned char* col_0_text = sqlite3_column_text(stmt, 0);
+	if(col_0_text != nullptr) {
+            matches["id"] = string(reinterpret_cast<const char*>(col_0_text));
+	}
+	const unsigned char* col_1_text = sqlite3_column_text(stmt, 1);
+	if(col_1_text != nullptr) {
+            matches["model"] = string(reinterpret_cast<const char*>(col_1_text));
+	}
     }
     sqlite3_finalize(stmt);
     stmt = nullptr;
@@ -113,10 +120,14 @@ json Database::select_row(string table, string modelId, string output_field) {
         "SELECT * from " + table + " WHERE id='" + modelId + "'  LIMIT 1;";
     int rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        matches["id"] =
-            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-        matches[output_field] =
-            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
+	const unsigned char* col_0_text = sqlite3_column_text(stmt, 0);
+	if(col_0_text != nullptr) {
+            matches["id"] = string(reinterpret_cast<const char*>(col_0_text));
+	}
+	const unsigned char* col_1_text = sqlite3_column_text(stmt, 1);
+	if(col_1_text != nullptr) {
+            matches[output_field] = string(reinterpret_cast<const char*>(col_1_text));
+	}
     }
     sqlite3_finalize(stmt);
     stmt = nullptr;
@@ -133,14 +144,22 @@ json Database::select_causemosasyncexperimentresult_row(string modelId) {
                    modelId + "' LIMIT 1;";
     int rc = sqlite3_prepare_v2(db, query.c_str(), -1, &stmt, NULL);
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
-        matches["id"] =
-            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)));
-        matches["status"] =
-            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)));
-        matches["experimentType"] =
-            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)));
-        matches["results"] =
-            string(reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3)));
+	const unsigned char* col_0_text = sqlite3_column_text(stmt, 0);
+	if(col_0_text != nullptr) {
+            matches["id"] = string(reinterpret_cast<const char*>(col_0_text));
+	}
+	const unsigned char* col_1_text = sqlite3_column_text(stmt, 1);
+	if(col_1_text != nullptr) {
+            matches["status"] = string(reinterpret_cast<const char*>(col_1_text));
+	}
+	const unsigned char* col_2_text = sqlite3_column_text(stmt, 2);
+	if(col_2_text != nullptr) {
+            matches["experimentType"] = string(reinterpret_cast<const char*>(col_2_text));
+	}
+	const unsigned char* col_3_text = sqlite3_column_text(stmt, 3);
+	if(col_3_text != nullptr) {
+            matches["results"] = string(reinterpret_cast<const char*>(col_3_text));
+	}
     }
 
     sqlite3_finalize(stmt);

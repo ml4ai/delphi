@@ -17,9 +17,10 @@ class ModelStatus : public BaseStatus {
 
   private:
     string model_id = "N/A";
-
-  protected:
-    void set_state(double progress, string status, bool busy);
+    Logger logger = Logger("ModelStatus");
+    bool validate_by_data(string id);
+    bool validate_by_model(string id);
+    void delete_row(string id);
 
   public:
     ModelStatus(string model_id) : BaseStatus(
@@ -36,6 +37,9 @@ class ModelStatus : public BaseStatus {
     ), model_id(model_id) {}
 
     ~ModelStatus(){}
+    void initialize();
+
+
 
     string get_id(){return model_id;}
     void enter_initial_state();
@@ -51,6 +55,5 @@ class ModelStatus : public BaseStatus {
     const string TRAINED = "trained"; // API
 
     // delphi model table
-    const string MODEL_TABLE = "delphimodel";
     const string COL_MODEL = "model";
 };

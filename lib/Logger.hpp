@@ -10,6 +10,7 @@ using namespace std;
 class Logger {
   public:
     Logger();
+    Logger(string name);
     ~Logger(){}
     void overwrite_logfile(string text);
     void info(string text);
@@ -21,4 +22,5 @@ class Logger {
     string timestamp();
     string filename = "logfile.txt";
     void write_to_logfile(string text, ios_base::openmode mode);
+    string name = "";
 };
