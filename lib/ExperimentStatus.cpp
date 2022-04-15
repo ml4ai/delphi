@@ -14,6 +14,11 @@ sqlite> pragma table_info (causemosasyncexperimentresult);
 4|progress|VARCHAR|0||0
 */
 
+// clean up database table of incomplete rows
+void ExperimentStatus::initialize() {
+  logger.info("initialize()");
+}
+
 // set our data to the start state
 void ExperimentStatus::enter_initial_state() {
   logger.info("enter_initial_state()");

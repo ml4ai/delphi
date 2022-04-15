@@ -39,6 +39,7 @@ class ExperimentStatus : public BaseStatus {
 
     ~ExperimentStatus(){}
 
+    void initialize();
     string get_id(){ return experiment_id;}
     void enter_initial_state();
     void enter_reading_state();
