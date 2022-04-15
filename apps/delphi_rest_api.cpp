@@ -322,7 +322,7 @@ int main(int argc, const char* argv[]) {
     }
 
     // start new logfile on startup
-    Logger logger;
+    Logger logger("delphi_rest_api::main");
 
     // report status
     logger.overwrite_logfile(systemStatus);
@@ -374,7 +374,7 @@ int main(int argc, const char* argv[]) {
     /* Allow users to check if the REST API is running */
     mux.handle("/status")
         .get([&sqlite3DB](served::response& res, const served::request& req) {
-	    Logger logger;
+	    Logger logger("status");
 	    logger.info("");
             logger.info("### DELPHI ENDPOINT: status");
 	    logger.info(" " + systemStatus);
@@ -388,7 +388,7 @@ int main(int argc, const char* argv[]) {
         .post([&sqlite3DB](served::response& response,
                            const served::request& req) {
 			
-	    Logger logger;
+	    Logger logger("create-model");
 	    logger.info("");
             logger.info("### DELPHI ENDPOINT: create-model");
 
@@ -532,7 +532,7 @@ int main(int argc, const char* argv[]) {
             string modelId = req.params["modelId"];
             string experimentId = req.params["experimentId"];
 
-	    Logger logger;
+	    Logger logger("experiment-get");
 	    logger.info("");
 	    logger.info("### DELPHI ENDPOINT: models/" 
 	        + modelId 
@@ -599,7 +599,7 @@ int main(int argc, const char* argv[]) {
             json ret;
             ret["modelId"] = modelId;
 
-	    Logger logger;
+	    Logger logger("experiment-create");
             logger.info("");
             logger.info("### DELPHI ENDPOINT: models/" 
 	        + modelId 
@@ -647,7 +647,7 @@ int main(int argc, const char* argv[]) {
             string experiment_id = to_string(uuid);
 
 	    ExperimentStatus es(experiment_id, modelId, sqlite3DB);
-	    es.enter_initial_state();
+//	    es.enter_initial_state();
 	    es.enter_reading_state();
 
             if(!sqlite3DB->insert_into_causemosasyncexperimentresult(
@@ -695,7 +695,7 @@ int main(int argc, const char* argv[]) {
         .get([&sqlite3DB](served::response& res, const served::request& req){
             string modelId = req.params["modelId"];
 
-            Logger logger;
+            Logger logger("training-progress");
 	    logger.info("");
             logger.info("### DELPHI ENDPOINT: models/" 
                 + modelId 
@@ -709,7 +709,7 @@ int main(int argc, const char* argv[]) {
             if(model_status_json.empty()) {
                 ret[ms.STATUS] = "Model ID not found";
                 string dump = ret.dump();
-                logger.error(" " + dump);
+                logger.error("Returning: " + dump);
                 res << dump;
                 return;
             }
@@ -717,7 +717,7 @@ int main(int argc, const char* argv[]) {
             ret[ms.PROGRESS] = model_status_json[ms.PROGRESS];
             ret[ms.STATUS] = model_status_json[ms.STATUS];
             string dump = ret.dump();
-            logger.info(" " + dump);
+            logger.info("Returning: " + dump);
             res << dump;
         });
 
@@ -738,7 +738,7 @@ int main(int argc, const char* argv[]) {
 
             ModelStatus ms(modelId, sqlite3DB);
 
-            Logger logger;
+            Logger logger("edit-indicators");
             logger.info("");
             logger.info("### DELPHI ENDPOINT: models/" 
                 + modelId 
@@ -772,7 +772,7 @@ int main(int argc, const char* argv[]) {
 
             ModelStatus ms(modelId, sqlite3DB);
 
-            Logger logger;
+            Logger logger("edit-edges");
             logger.info("");
             logger.info("### DELPHI ENDPOINT: models/" 
                 + modelId 
@@ -942,7 +942,7 @@ int main(int argc, const char* argv[]) {
             ModelStatus ms(modelId, sqlite3DB);
             json ret;
             ret[ms.MODEL_ID] = modelId;
-            Logger logger;
+            Logger logger("model-status");
             logger.info("");
             logger.info("### DELPHI ENDPOINT: models/" + modelId);
 
