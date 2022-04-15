@@ -26,6 +26,10 @@ Program Listing for File Logger.cpp
      filename = get_log_file_path();
    } 
    
+   Logger::Logger(string name): name(name + " ") {
+     filename = get_log_file_path();
+   } 
+   
    // Determine log filename for our runtime environment
    string Logger::get_log_file_path() {
    
@@ -69,7 +73,7 @@ Program Listing for File Logger.cpp
      fstream file;
      file.open(filename, mode);
      if (file.is_open()) {
-       file << timestamp() << text << endl;
+       file << timestamp() << name << text << endl;
        file.close();
      }
      else {
@@ -79,7 +83,7 @@ Program Listing for File Logger.cpp
    
    // overwrite the logfile contents with this text
    void Logger::overwrite_logfile(string text){
-     write_to_logfile(text, ios_base::out);
+     write_to_logfile("INFO: " + text, ios_base::out);
    }
    
    // append this text to the logfile

@@ -95,45 +95,43 @@
 <span class="cm">4|progress|VARCHAR|0||0</span>
 <span class="cm">*/</span><span class="w"></span>
 
+<span class="c1">// clean up database table of incomplete rows</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">ExperimentStatus::initialize</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;initialize()&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
 <span class="c1">// set our data to the start state</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">ExperimentStatus::enter_initial_state</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;enter_initial_state()&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">set_state</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Empty&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
 <span class="c1">// set our data to begin preliminary data reading</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">ExperimentStatus::enter_reading_state</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;enter_reading_state()&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">set_state</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Creating experiment&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
 <span class="c1">// set our data to begin recording progress</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">ExperimentStatus::enter_working_state</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;enter_working_state()&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">set_state</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;In progress&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">start_recording_progress</span><span class="p">();</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
 <span class="c1">// set our data to begin writing to database</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">ExperimentStatus::enter_writing_state</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;enter_writing_state()&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">stop_recording_progress</span><span class="p">();</span><span class="w"></span>
 <span class="w">  </span><span class="n">set_state</span><span class="p">(</span><span class="mf">0.99</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Writing to database&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
 <span class="c1">// set our data to the end state</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">ExperimentStatus::enter_finished_state</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;enter_finished_state(&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">set_state</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="c1">// set the complete data for the database row</span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">ExperimentStatus::set_state</span><span class="p">(</span><span class="w"></span>
-<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">progress</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">busy</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="n">set_progress</span><span class="p">(</span><span class="n">progress</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">data</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">data</span><span class="p">[</span><span class="n">EXPERIMENT_ID</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">data</span><span class="p">[</span><span class="n">PROGRESS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">progress</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">data</span><span class="p">[</span><span class="n">STATUS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">data</span><span class="p">[</span><span class="n">BUSY</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">busy</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">write_data</span><span class="p">(</span><span class="n">data</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>

@@ -95,9 +95,7 @@
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">scheduler</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">experiment_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;N/A&quot;</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">model_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;N/A&quot;</span><span class="p">;</span><span class="w"></span>
-
-<span class="w">  </span><span class="k">protected</span><span class="o">:</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">set_state</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">progress</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">busy</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">Logger</span><span class="w"> </span><span class="n">logger</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Logger</span><span class="p">(</span><span class="s">&quot;ExperimentStatus&quot;</span><span class="p">);</span><span class="w"></span>
 
 <span class="w">  </span><span class="k">public</span><span class="o">:</span><span class="w"></span>
 <span class="w">    </span><span class="n">ExperimentStatus</span><span class="p">(</span><span class="w"></span>
@@ -122,8 +120,9 @@
 
 <span class="w">    </span><span class="o">~</span><span class="n">ExperimentStatus</span><span class="p">(){}</span><span class="w"></span>
 
-<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="n">get_id</span><span class="p">(){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">;}</span><span class="w"></span>
-<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">enter_initial_state</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="n">initialize</span><span class="p">();</span><span class="w"></span>
+<span class="w">    </span><span class="n">string</span><span class="w"> </span><span class="nf">get_id</span><span class="p">(){</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">experiment_id</span><span class="p">;}</span><span class="w"></span>
+<span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">enter_initial_state</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">enter_reading_state</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">enter_working_state</span><span class="p">();</span><span class="w"></span>
 <span class="w">    </span><span class="kt">void</span><span class="w"> </span><span class="nf">enter_writing_state</span><span class="p">();</span><span class="w"></span>

@@ -89,45 +89,130 @@
 <span class="cm">2|progress|VARCHAR|0||0</span>
 <span class="cm">*/</span><span class="w"></span>
 
+<span class="c1">// clean up database table of incomplete rows.</span>
+<span class="c1">// For each row:</span>
+<span class="c1">//</span>
+<span class="c1">// low-latency test:</span>
+<span class="c1">// If we have a progress column {</span>
+<span class="c1">//   If it shows incomplete training {</span>
+<span class="c1">//     delete the row.</span>
+<span class="c1">//   }</span>
+<span class="c1">// }</span>
+<span class="c1">// longer test if the low-latency test fails:</span>
+<span class="c1">// else {</span>
+<span class="c1">//   read the model</span>
+<span class="c1">//   get the value of the &quot;trained&quot; JSON field</span>
+<span class="c1">//   If the value is &quot;trained&quot; {</span>
+<span class="c1">//     add a completed progress column to the row, so the low-latency</span>
+<span class="c1">//     test passes next time.</span>
+<span class="c1">//   }</span>
+<span class="c1">//   else {</span>
+<span class="c1">//     delete the row</span>
+<span class="c1">//   }</span>
+<span class="c1">// }</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">ModelStatus::initialize</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;initialize()&quot;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="c1">// find all the model IDs in table</span>
+<span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">id_query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;SELECT &quot;</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">COL_ID</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; FROM &quot;</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">table_name</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;;&quot;</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;id_query: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id_query</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">id_vec</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">database</span><span class="o">-&gt;</span><span class="n">read_column_text</span><span class="p">(</span><span class="n">id_query</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="o">:</span><span class="w"> </span><span class="n">id_vec</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">validate_by_data</span><span class="p">(</span><span class="n">id</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;validate_by_data(&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;) passed&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;validate_by_data(&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;) failed, validating by model&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">validate_by_model</span><span class="p">(</span><span class="n">id</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;validate_by_model(&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;) passed&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">ModelStatus</span><span class="w"> </span><span class="n">ms</span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">ms</span><span class="p">.</span><span class="n">enter_finished_state</span><span class="p">(</span><span class="s">&quot;Trained&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;validate_by_model(&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;) failed&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">delete_row</span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="c1">// test for empty JSON, non-existent progress field, and progress != 0</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">ModelStatus::validate_by_data</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;ModelStatus::validate_by_data(&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">json</span><span class="w"> </span><span class="n">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_data</span><span class="p">(</span><span class="n">id</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;data read: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">data</span><span class="p">.</span><span class="n">dump</span><span class="p">());</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">PROGRESS</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="kt">double</span><span class="p">)</span><span class="n">data</span><span class="p">[</span><span class="n">PROGRESS</span><span class="p">]</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mf">1.0</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kt">bool</span><span class="w"> </span><span class="nf">ModelStatus::validate_by_model</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;ModelStatus::validate_by_model(&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">model_strings</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">     </span><span class="n">database</span><span class="o">-&gt;</span><span class="w"> </span><span class="n">read_column_text_query_where</span><span class="w"> </span><span class="p">(</span><span class="n">table_name</span><span class="p">,</span><span class="w"> </span><span class="n">COL_MODEL</span><span class="p">,</span><span class="w"> </span><span class="n">COL_ID</span><span class="p">,</span><span class="w"> </span><span class="n">id</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">for</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">model_string</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">model_strings</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">model_string</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="n">json</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">json</span><span class="o">::</span><span class="n">parse</span><span class="p">(</span><span class="n">model_string</span><span class="p">);</span><span class="w"></span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="kt">bool</span><span class="p">)</span><span class="n">model</span><span class="p">.</span><span class="n">value</span><span class="p">(</span><span class="s">&quot;trained&quot;</span><span class="p">,</span><span class="nb">false</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">ModelStatus::delete_row</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;ModelStatus::delete_row(&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">string</span><span class="w"> </span><span class="n">delete_query</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;DELETE FROM &quot;</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">table_name</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; WHERE &quot;</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">COL_ID</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; = &#39;&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39;;&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">deleted</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">database</span><span class="o">-&gt;</span><span class="n">insert</span><span class="p">(</span><span class="n">delete_query</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">deleted</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="n">table_name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;row with id &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39; deleted&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="n">logger</span><span class="p">.</span><span class="n">error</span><span class="p">(</span><span class="n">table_name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;row with id &#39;&quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;&#39; could not be deleted&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
 <span class="c1">// Check that the database table contains our row</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">ModelStatus::enter_initial_state</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;enter_initial_state()&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">set_state</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Empty&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
 <span class="c1">// set our data to begin preliminary data reading</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">ModelStatus::enter_reading_state</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;enter_reading_state()&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">set_state</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Creating model&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
 <span class="c1">// set our data to begin recording progress</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">ModelStatus::enter_working_state</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;enter_working_state()&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">set_state</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Training&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">start_recording_progress</span><span class="p">();</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
 <span class="c1">// set our data to begin writing to database</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">ModelStatus::enter_writing_state</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;enter_writing_state()&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">stop_recording_progress</span><span class="p">();</span><span class="w"></span>
 <span class="w">  </span><span class="n">set_state</span><span class="p">(</span><span class="mf">0.99</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Writing to database&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
 <span class="c1">// set our data to the end state</span>
 <span class="kt">void</span><span class="w"> </span><span class="nf">ModelStatus::enter_finished_state</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">status</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;enter_finished_state(&quot;</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="n">status</span><span class="w"></span>
+<span class="w">    </span><span class="o">+</span><span class="w"> </span><span class="s">&quot;)&quot;</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="n">set_state</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
-
-<span class="c1">// set the complete data for the database row</span>
-<span class="kt">void</span><span class="w"> </span><span class="nf">ModelStatus::set_state</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">progress</span><span class="p">,</span><span class="w"> </span><span class="n">string</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">busy</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="n">set_progress</span><span class="p">(</span><span class="n">progress</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="n">nlohmann</span><span class="o">::</span><span class="n">json</span><span class="w"> </span><span class="n">state</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">state</span><span class="p">[</span><span class="n">MODEL_ID</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model_id</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">state</span><span class="p">[</span><span class="n">PROGRESS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">progress</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">state</span><span class="p">[</span><span class="n">STATUS</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">status</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">state</span><span class="p">[</span><span class="n">BUSY</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">busy</span><span class="p">;</span><span class="w"></span>
-<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;ModelStatus set_state(,,)&quot;</span><span class="p">);</span><span class="w"></span>
-<span class="w">  </span><span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;ModelStatus state = &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">state</span><span class="p">.</span><span class="n">dump</span><span class="p">());</span><span class="w"></span>
-
-<span class="w">  </span><span class="n">write_data</span><span class="p">(</span><span class="n">state</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>

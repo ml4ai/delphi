@@ -95,6 +95,10 @@
 <span class="w">  </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_log_file_path</span><span class="p">();</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
+<span class="n">Logger</span><span class="o">::</span><span class="n">Logger</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">name</span><span class="p">)</span><span class="o">:</span><span class="w"> </span><span class="n">name</span><span class="p">(</span><span class="n">name</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&quot; &quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">  </span><span class="n">filename</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_log_file_path</span><span class="p">();</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+
 <span class="c1">// Determine log filename for our runtime environment</span>
 <span class="n">string</span><span class="w"> </span><span class="n">Logger</span><span class="o">::</span><span class="n">get_log_file_path</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
 
@@ -138,7 +142,7 @@
 <span class="w">  </span><span class="n">fstream</span><span class="w"> </span><span class="n">file</span><span class="p">;</span><span class="w"></span>
 <span class="w">  </span><span class="n">file</span><span class="p">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="n">mode</span><span class="p">);</span><span class="w"></span>
 <span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">file</span><span class="p">.</span><span class="n">is_open</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">timestamp</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">timestamp</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">endl</span><span class="p">;</span><span class="w"></span>
 <span class="w">    </span><span class="n">file</span><span class="p">.</span><span class="n">close</span><span class="p">();</span><span class="w"></span>
 <span class="w">  </span><span class="p">}</span><span class="w"></span>
 <span class="w">  </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -148,7 +152,7 @@
 
 <span class="c1">// overwrite the logfile contents with this text</span>
 <span class="kt">void</span><span class="w"> </span><span class="n">Logger</span><span class="o">::</span><span class="n">overwrite_logfile</span><span class="p">(</span><span class="n">string</span><span class="w"> </span><span class="n">text</span><span class="p">){</span><span class="w"></span>
-<span class="w">  </span><span class="n">write_to_logfile</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">ios_base</span><span class="o">::</span><span class="n">out</span><span class="p">);</span><span class="w"></span>
+<span class="w">  </span><span class="n">write_to_logfile</span><span class="p">(</span><span class="s">&quot;INFO: &quot;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">ios_base</span><span class="o">::</span><span class="n">out</span><span class="p">);</span><span class="w"></span>
 <span class="p">}</span><span class="w"></span>
 
 <span class="c1">// append this text to the logfile</span>
