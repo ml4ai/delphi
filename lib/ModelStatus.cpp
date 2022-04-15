@@ -13,16 +13,17 @@ sqlite> pragma table_info (delphimodel);
 //
 // low-latency test:
 // If we have a progress column {
-//   If (it shows incomplete training) {
+//   If it shows incomplete training {
 //     delete the row.
 //   }
 // }
-// longer test:
+// longer test if the low-latency test fails:
 // else {
 //   read the model 
 //   get the value of the "trained" JSON field
-//   If (the value is "trained") {
-//     add a completed progress column to the row
+//   If the value is "trained" {
+//     add a completed progress column to the row, so the low-latency
+//     test passes next time.
 //   }
 //   else {
 //     delete the row
