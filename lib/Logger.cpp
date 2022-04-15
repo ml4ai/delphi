@@ -71,7 +71,7 @@ void Logger::write_to_logfile(string text, ios_base::openmode mode) {
 
 // overwrite the logfile contents with this text
 void Logger::overwrite_logfile(string text){
-  write_to_logfile(text, ios_base::out);
+  write_to_logfile("INFO: " + text, ios_base::out);
 }
 
 // append this text to the logfile
