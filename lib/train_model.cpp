@@ -249,7 +249,6 @@ void AnalysisGraph::run_train_model(int res,
       char buf[200];
       sprintf(buf, "%4d %.10f", i, this->log_likelihood);
       logger.info(" " + string(buf));
- //     cout << buf << endl;
 
       if (this->log_likelihood > this->log_likelihood_MAP) {
           this->log_likelihood_MAP = this->log_likelihood;
