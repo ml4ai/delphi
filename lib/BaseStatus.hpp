@@ -15,7 +15,6 @@ class BaseStatus {
 
   private:
     string class_name = "N/A";  // extending class
-    string table_name = "N/A";  // table of extending class
     string primary_key = "N/A"; // primary key of table
     std::thread *pThread = nullptr; // for timed updates to database
     bool recording = false;  // true if timed updates are happening
@@ -26,6 +25,7 @@ class BaseStatus {
 
   protected:
     Database* database = nullptr; // connection to Delphi DB
+    string table_name = "N/A";  // table of extending class
     void set_progress(double p){ progress = p;}
     void start_recording_progress();
     void stop_recording_progress();
@@ -54,8 +54,8 @@ class BaseStatus {
       table_name(table_name),
       primary_key(primary_key){}
     ~BaseStatus();
-    void initialize();
     json read_data();
+    json read_data(string id);
     void increment_progress(double i) { progress += i;}
 
     // database table columns

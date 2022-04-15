@@ -25,12 +25,6 @@ bool BaseStatus::insert_query(string query) {
   return false;
 }
 
-// Make a clean start with valid data
-void BaseStatus::initialize() {
-  logger.info("initialize()");
-}
-
-
 // add valid data to new table
 void BaseStatus::insert_data(string id, json data){
   string query = "INSERT INTO "
@@ -75,8 +69,12 @@ void BaseStatus::stop_recording_progress(){
   pThread = nullptr;
 }
 
-// return the data JSON for the primary key
 json BaseStatus::read_data() {
+  return read_data(primary_key);
+}
+
+// return the data JSON for the primary key
+json BaseStatus::read_data(string id) {
   string label = "read_data() ";
   logger.info(label);
 
@@ -88,7 +86,7 @@ json BaseStatus::read_data() {
     + " WHERE "
     + COL_ID
     + " = '"
-    + primary_key
+    + id
     + "';";
 
   logger.info("query: " + query);
@@ -98,7 +96,10 @@ json BaseStatus::read_data() {
   json data;
 
   for(string result: results) {
-    data = json::parse(result);
+    if(!result.empty()) {
+      logger.info("parsing: " + result);
+      data = json::parse(result);
+    }
   }
 
   logger.info("result: " + data.dump());
