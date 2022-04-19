@@ -15,22 +15,6 @@ Subpackages
 Submodules
 ----------
 
-delphi.AnalysisGraph module
----------------------------
-
-.. automodule:: delphi.AnalysisGraph
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-delphi.assembly module
-----------------------
-
-.. automodule:: delphi.assembly
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 delphi.db module
 ----------------
 
@@ -47,29 +31,6 @@ delphi.evaluation module
    :undoc-members:
    :show-inheritance:
 
-delphi.evaluation\_port module
-------------------------------
-
-.. automodule:: delphi.evaluation_port
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-delphi.export module
---------------------
-
-.. automodule:: delphi.export
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-delphi.inspection module
-------------------------
-
-.. automodule:: delphi.inspection
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 delphi.jupyter\_tools module
 ----------------------------
@@ -91,14 +52,6 @@ delphi.random\_variables module
 -------------------------------
 
 .. automodule:: delphi.random_variables
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-delphi.visualization module
----------------------------
-
-.. automodule:: delphi.visualization
    :members:
    :undoc-members:
    :show-inheritance:
