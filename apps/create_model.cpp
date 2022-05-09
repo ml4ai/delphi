@@ -485,7 +485,8 @@ int main(int argc, char* argv[]) {
   cout << "\nAfter serializing and deserializing\n" << G.generate_create_model_response() << "\n-----------------------\n" << endl;
 
   G.set_n_kde_kernels(100);
-  G.run_train_model(10, 10);
+  G.run_train_model(10000, 1000);
+  return(0);
 
   cout << "\nAfter training\n" << G.generate_create_model_response() << "\n-----------------------\n" << endl;
 

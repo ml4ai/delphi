@@ -8,6 +8,7 @@
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/for_each.hpp>
 #include <boost/range/iterator_range.hpp>
+#include <boost/functional/hash.hpp>
 #include <range/v3/all.hpp>
 
 #include <sqlite3.h>
@@ -492,6 +493,16 @@ class AnalysisGraph {
 
   std::vector<Eigen::MatrixXd> transition_matrix_collection;
   std::vector<Eigen::VectorXd> initial_latent_state_collection;
+  std::vector<std::vector<double>> transition_matrix_collection_2;
+  std::vector<std::vector<double>> initial_latent_state_collection_2;
+  std::unordered_map<std::pair<unsigned long int, unsigned long int>, long,
+      boost::hash<std::pair<unsigned long int, unsigned long int>>>
+      sample_to_frequency;
+  unsigned long int current_A_idx = -1;
+  unsigned long int current_s0_idx = -1;
+  bool sample_accepted = false;
+  unsigned long int tot_unique_samples = 0;
+
   //std::vector<std::vector<double>> latent_mean_collection;
   //std::vector<std::vector<double>> latent_std_collection;
   // Access:
@@ -941,6 +952,12 @@ class AnalysisGraph {
   void set_log_likelihood_helper(int ts);
 
   void set_log_likelihood();
+
+  void record_A();
+
+  void record_s0();
+
+  void record_sample(bool accepted);
 
   /**
    * Run Bayesian inference - sample from the posterior distribution.

@@ -291,6 +291,7 @@ void AnalysisGraph::run_train_model(int res,
 
       this->transition_matrix_collection[i] = this->A_original;
       this->initial_latent_state_collection[i] = this->s0;
+      this->record_sample(sample_accepted);
 
       if (this->log_likelihood > this->log_likelihood_MAP) {
         this->log_likelihood_MAP = this->log_likelihood;
@@ -336,6 +337,15 @@ void AnalysisGraph::run_train_model(int res,
     } else {
       this->MAP_sample_number = this->res - 1;
     }
+
+    cout << "\nUnique samples: " << tot_unique_samples++ << "\n";
+    cout << "Sample frequencies are:\n";
+    long tot_samples = 0;
+    for (auto [sample, frequency]: sample_to_frequency) {
+        cout << "(" << sample.first << ", " << sample.second << ") --> " << frequency << "\n";
+        tot_samples += frequency;
+    }
+    cout << "Tot samples: " << tot_samples << "\n";
 
     this->trained = true;
     ms.enter_writing_state();

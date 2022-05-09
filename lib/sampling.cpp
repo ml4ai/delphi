@@ -375,6 +375,67 @@ void AnalysisGraph::set_log_likelihood() {
   }
 }
 
+void AnalysisGraph::record_A() {
+    int num_verts = this->num_vertices();
+    vector<double> mat_els(num_verts * num_verts);
+
+    for (int row = 0; row < num_verts; row++) {
+        for (int col = 0; col < num_verts; col++) {
+            mat_els[row * num_verts + col] =
+                this->A_original(row * 2, col * 2 + 1);
+        }
+    }
+
+    transition_matrix_collection_2.push_back(mat_els);
+}
+
+void AnalysisGraph::record_s0()
+{
+    int num_verts = this->num_vertices();
+    vector<double> derivatives(num_verts);
+
+    for (int row = 0; row < num_verts; row++) {
+        derivatives[row] = this->s0(row * 2 + 1);
+    }
+
+    initial_latent_state_collection_2.push_back(derivatives);
+}
+
+void AnalysisGraph::record_sample(bool accepted) {
+    if (current_A_idx == -1) {
+        // We must record the first sample
+        this->record_A();
+        this->record_s0();
+        current_A_idx++;
+        current_s0_idx++;
+        tot_unique_samples++;
+
+        // Prevent the first sample from being double recorded
+        accepted = false;
+    }
+
+    if (accepted) {
+        if (this->coin_flip < this->coin_flip_thresh) {
+            // A θ has been sampled
+            this->record_A();
+            current_A_idx++;
+        }
+        else {
+            if (this->generated_concept == -1) {
+                // A derivative  has been sampled
+                this->record_s0();
+                current_s0_idx++;
+            }
+            else {
+                // A derivative sequence for an independent node has been generated
+            }
+        }
+        tot_unique_samples++;
+    }
+
+    sample_to_frequency[make_pair(current_A_idx, current_s0_idx)]++;
+}
+
 void AnalysisGraph::sample_from_posterior() {
   // Sample a new transition matrix from the proposal distribution
   this->sample_from_proposal();
@@ -389,12 +450,15 @@ void AnalysisGraph::sample_from_posterior() {
 
   double acceptance_probability = min(1.0, exp(delta_log_joint_probability));
 
+  sample_accepted = true;
+
   if (acceptance_probability < this->uni_dist(this->rand_num_generator)) {
     // Reject the sample
     if (this->generated_concept == -1) {
       this->revert_back_to_previous_state();
     }
     this->log_likelihood = this->previous_log_likelihood;
+    sample_accepted = false;
   }
 //  else {
 //    if (this->generated_concept > -1) {
