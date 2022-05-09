@@ -48,17 +48,32 @@ def plot_predictions_with_data_distributions(LDS_pred, num_pred, df_binned, df_b
         # 12: s=3
         sns.swarmplot(data=df_binned, x='Observation Point str', y='Observation', color="k", alpha=0.8, s=2)
 
-        ax.fill_between(df_bin_centers['Bin Point str'], df_bin_centers[center_measure] - df_bin_centers['Bin StD'],
-                        df_bin_centers[center_measure] + df_bin_centers['Bin StD'], color='orangered', alpha=0.3, label='Standard Deviation')
-        # ax.fill_between(df_bin_centers['Bin Point str'], df_bin_centers['Bin Median'] - df_bin_centers['Bin MAD'],
-        #                 df_bin_centers['Bin Median'] + df_bin_centers['Bin MAD'], color='b', alpha=0.3, label='Median Abolute Error')
-        # sns.lineplot(x=df_bin_centers['Bin Point str'], y=df_bin_centers['Bin Median'], color='b', linewidth=1, label='Bin Median', alpha=1, marker='o')
-        sns.lineplot(x=df_bin_centers['Bin Point str'], y=df_bin_centers[center_measure], color='orangered', linewidth=1, label=center_measure, marker='D')
+        # Linear interpolate midpoints between Naive seasonal model bin predictions to plot them with the
+        # Fourier decomposition based seasonal head node model predictions
+        df_bin_centers_midpoints = df_bin_centers.copy()
+        df_bin_centers_midpoints.loc[len(df_bin_centers_midpoints.index)] = df_bin_centers_midpoints.loc[0]
+        df_bin_centers_midpoints.at[len(df_bin_centers_midpoints.index) - 1, 'Bin Point str'] = 13
+        # https://stackoverflow.com/questions/36810595/calculate-average-of-every-x-rows-in-a-table-and-create-new-table/36810658
+        df_bin_centers_midpoints = df_bin_centers_midpoints.rolling(2).mean().dropna()
+        df_bin_centers['Bin Point str'] = df_bin_centers['Bin Point str'].apply(lambda x: float(x))
+        df_bin_centers = pd.concat([df_bin_centers, df_bin_centers_midpoints], ignore_index=True)
+        df_bin_centers.sort_values(by=['Bin Point str'], inplace=True, ignore_index=True)
+        df_bin_centers['Bin Point str'] = df_bin_centers['Bin Point str'].apply(lambda x: f'{x}')
+        # df_bin_centers.to_csv("centres.csv")
+        # df_bin_centers_midpoints.to_csv("centres_midpoints.csv")
+        # df_binned.to_csv("binned.csv")
+
+        ax.fill_between(x_pred_LDS, df_bin_centers[center_measure] - df_bin_centers['Bin StD'],
+                        df_bin_centers[center_measure] + df_bin_centers['Bin StD'], color='g', alpha=0.2, label='Standard Deviation')
+        ax.fill_between(x_pred_LDS, df_bin_centers['Bin Median'] - df_bin_centers['Bin MAD'],
+                        df_bin_centers['Bin Median'] + df_bin_centers['Bin MAD'], color='b', alpha=0.3, label='Median Abolute Error')
+        sns.lineplot(x=x_pred_LDS, y=df_bin_centers['Bin Median'], color='b', linewidth=1.5, label='Naive (Median)', marker='*', markersize=7, alpha=0.8)
+        sns.lineplot(x=x_pred_LDS, y=df_bin_centers[center_measure], color='g', linewidth=1.5, label=center_measure, marker='D')
     else:
         print('***** WARNING: Cannot produce distribution plots for prediction step sizes other than 1 *****')
         title = '***** WARNING: prediction step sizes $\\neq$ 1 *****\nDistributions Cannot be aligned with Predictions'
 
-    sns.lineplot(x=x_pred_LDS, y=LDS_pred[-2, :], label='LDS value', marker='o', color='r', linewidth=2)
+    sns.lineplot(x=x_pred_LDS, y=LDS_pred[-2, :], label='Fourier ($k = 2$)', marker='o', color='orangered', linewidth=1.5)
 
     title += f' $(k = {components})$'
     # plt.title(title)
@@ -552,9 +567,9 @@ def compute_fourier_coefficients_from_least_square_optimization(binned_data, num
 
 # vvvvvvvvvvvvvvvvvvvv Finding the best k vvvvvvvvvvvvvvvvvvvvv
 
-def train_validate_test_split(data, timesteps, period):
-    train = 32 * period
-    validate = train + 20 * period
+def train_validate_test_split(data, timesteps, period, train_years=32, validate_years=20):
+    train = train_years * period
+    validate = train + validate_years * period
     train_data = data[:train]
     train_timesteps = timesteps[:train]
     validate_data = data[train: validate]
@@ -615,7 +630,7 @@ def find_best_k(data, timesteps, period, L):
     prediction_locations = 1 / prediction_step_length
     period_validation = period * int(prediction_locations)
 
-    train_data, train_timesteps, validate_data, validate_timesteps, test_data, test_timesteps = train_validate_test_split(data, timesteps, period)
+    train_data, train_timesteps, validate_data, validate_timesteps, test_data, test_timesteps = train_validate_test_split(data, timesteps, period, train_years=32, validate_years=20)
     # train_data = data
     # train_timesteps = timesteps
 
@@ -637,6 +652,10 @@ def find_best_k(data, timesteps, period, L):
         test_data = linear_interpolate_mid_point(test_data)
         test_timesteps = np.arange(len(test_timesteps) * 2 - 1)
 
+        # For plotting the training data binned distributions
+        train_data_4_plotting = linear_interpolate_mid_point(train_data)
+        train_timesteps_4_plotting = np.arange(len(train_timesteps) * 2 - 1)
+
         naive_mean_predictions = np.zeros(len(train_df_bin_centers['Bin Mean']) + 1)
         naive_median_predictions = np.zeros(len(train_df_bin_centers['Bin Median']) + 1)
 
@@ -647,18 +666,20 @@ def find_best_k(data, timesteps, period, L):
         naive_median_predictions[-1] = train_df_bin_centers['Bin Median'][0]
 
         naive_mean_predictions = linear_interpolate_mid_point(naive_mean_predictions)[:-1]
-        naive_median_predictions = linear_interpolate_mid_point(naive_median_predictions)
+        naive_median_predictions = linear_interpolate_mid_point(naive_median_predictions)[:-1]
     else:
         naive_mean_predictions = train_df_bin_centers['Bin Mean']
         naive_median_predictions = train_df_bin_centers['Bin Median']
 
     validate_df_bin_centers, validate_binned_data, validate_df_binned = partition_data_according_to_period(validate_data, validate_timesteps, period_validation, L)
     test_df_bin_centers, test_binned_data, test_df_binned = partition_data_according_to_period(test_data, test_timesteps, period_validation, L)
+    # For plotting the training data binned distributions
+    train_df_bin_centers_4_plotting, train_binned_data_4_plotting, train_df_binned_4_plotting = partition_data_according_to_period(train_data_4_plotting, train_timesteps_4_plotting, period_validation, L)
 
     naive_mean_bin_rmses, naive_mean_bin_between_rmses, naive_mean_combined_rmse, _ = compute_rmse(naive_mean_predictions, test_binned_data, prediction_locations=prediction_locations)
     naive_median_bin_rmses, naive_median_bin_between_rmses, naive_median_combined_rmse, _ = compute_rmse(naive_median_predictions, test_binned_data, prediction_locations=prediction_locations)
-    print(f'RMSE Naive Bin Means  : \n\tBin     : {naive_mean_bin_rmses:.2f}\n\tBetween : {naive_mean_bin_between_rmses:.2f}\n\tCombined: {naive_mean_combined_rmse:.2f}')
-    print(f'RMSE Naive Bin Medians  : \n\tBin     : {naive_median_bin_rmses:.2f}\n\tBetween : {naive_median_bin_between_rmses:.2f}\n\tCombined: {naive_median_combined_rmse:.2f}')
+    print(f'RMSE Naive Bin Means  : \n\tBin     : {naive_mean_bin_rmses:.4f}\n\tBetween : {naive_mean_bin_between_rmses:.4f}\n\tCombined: {naive_mean_combined_rmse:.4f}')
+    print(f'RMSE Naive Bin Medians  : \n\tBin     : {naive_median_bin_rmses:.4f}\n\tBetween : {naive_median_bin_between_rmses:.4f}\n\tCombined: {naive_median_combined_rmse:.4f}')
     # return
 
     highest_frequency = int(period / 2)
@@ -672,6 +693,7 @@ def find_best_k(data, timesteps, period, L):
     test_combined_rmses = np.zeros(highest_frequency)
 
     for components in range(1, highest_frequency + 1):
+    # for components in range(2, 3):
         print(components)
         A_sinusoidal, s0_sinusoidal = assemble_sinusoidal_generating_compact_LDS(components, train_data[0])
         C0, C, D = compute_fourier_coefficients_from_least_square_optimization(binned_data=train_binned_data,
@@ -708,16 +730,18 @@ def find_best_k(data, timesteps, period, L):
     print(f'k\tBin\t\tBetween Bin\tCombined')
     print('-----------------------')
     for components in range(1, highest_frequency + 1):
-        print(f'{components}\t{test_bin_rmses[components - 1]:.2f}\t{test_bin_between_rmses[components - 1]:.2f}\t{test_combined_rmses[components - 1]:.2f}')
+        print(f'{components}\t{test_bin_rmses[components - 1]:.4f}\t{test_bin_between_rmses[components - 1]:.4f}\t{test_combined_rmses[components - 1]:.4f}')
     print('-----------------------\n')
 
     fig, ax = plt.subplots(dpi=250, figsize=(3.25, 2))
     # fig, ax = plt.subplots(dpi=250, figsize=(20, 15))
     zoom = 3
     sns.lineplot(x=range(zoom, highest_frequency + 1), y=bin_rmses[zoom - 1:], marker='o', markersize=5, label='RMSE for bins')
+    print(bin_rmses[zoom - 1:])
     if prediction_locations == 2:
         sns.lineplot(x=range(zoom, highest_frequency + 1), y=bin_between_rmses[zoom - 1:], marker='o', markersize=5, label='RMSE for between bins', color='r')
         sns.lineplot(x=range(zoom, highest_frequency + 1), y=combined_rmses[zoom - 1:], label='RMSE combined', color='g')
+        print(bin_between_rmses[zoom - 1:])
 
     plt.xticks(range(zoom, highest_frequency + 1))
     # plt.title('Validation Set RMSE')
@@ -750,6 +774,12 @@ spl = 1000
 # Periodic data sequence
 df_rain = pd.read_csv('../data/mini_use_case/TerraClimateOromiaMontlhyPrecip.csv')
 rain = np.array(df_rain['(mm) Precipitation (TerraClimate) at State, 1958-01-01 to 2019-12-31'].tolist())
+# df_rain = pd.read_csv('../data/mini_use_case/TerraClimateOromiaMonthlyMaxTemp.csv')
+# rain = np.array(df_rain['(deg C) Max Temperature (TerraClimate) at State, 1958-01-01 to 2019-12-31'].tolist())
+# df_rain = pd.read_csv('../data/mini_use_case/TerraClimateOromiaMonthlyMinTemp.csv')
+# rain = np.array(df_rain['(deg C) Min Temperature (TerraClimate) at State, 1958-01-01 to 2019-12-31'].tolist())
+# df_rain = pd.read_csv('../data/mini_use_case/Sea Level Pressure_Darwin (SLP).csv')
+# rain = np.array(df_rain['Data'].tolist())
 months = np.array(range(len(rain)))
 
 # data = [0, 0, 1, 0, 0]
