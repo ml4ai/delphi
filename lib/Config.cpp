@@ -47,7 +47,7 @@ string Config::get_config_file_path() {
   if(strcmp(dirname,"/delphi") == 0) {
     // Docker 
     sprintf(filename,"%s/data/%s", cwd, FILENAME.c_str());
-  } else if(strcmp(dirname,"/build") == 0) {
+  } else if(strcmp(dirname,"/build") == 0 || strcmp(dirname,"/scripts") == 0) {
     // Anything else
     sprintf(filename,"%s/../data/%s", cwd, FILENAME.c_str());
   }
@@ -60,7 +60,7 @@ string Config::get_config_file_path() {
 
   // unrecognized directory for delphi execution
   cerr << "Could not locate config file 'config.json'.  "
-  << "Delphi should be run in the 'delphi/build' directory "
+  << "Delphi should be run in the 'delphi/build' or 'delphi/scripts' directory "
   << "on a Linux or MAC operating system, or in the 'delphi' directory "
   << "in a Docker container."
   << endl;
