@@ -55,6 +55,7 @@ class KDE {
   KDE(std::vector<double>, int n_bins);
   void set_num_bins(int n_bins);
   int theta_to_bin(double theta);
+  double bin_to_theta(int bin);
 
   // TODO: Made this public just to initialize β.
   // Not sure this is the correct way to do it.

@@ -63,8 +63,7 @@ KDE::KDE(vector<double> thetas, int n_bins)  : n_bins(n_bins) {
 
 //  if (bin_lo != bin_hi && bin_lo != (bin_hi + 1) % n_bins)
 
-  this->most_probable_theta = highest_freq_bin * this->delta_theta +
-                              this->delta_theta / 2 - M_PI_2;
+  this->most_probable_theta = this->bin_to_theta(highest_freq_bin);
   double n_points = thetas.size() + small_count * n_bins;
 
   for (double & count : this->log_prior_hist) {
@@ -80,6 +79,10 @@ void KDE::set_num_bins(int n_bins) {
 
 int KDE::theta_to_bin(double theta) {
     return floor((theta + M_PI_2) / this->delta_theta);
+}
+
+double KDE::bin_to_theta(int bin) {
+    return (bin * this->delta_theta) + (this->delta_theta / 2) - M_PI_2;
 }
 
 
