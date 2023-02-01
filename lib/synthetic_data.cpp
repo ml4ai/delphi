@@ -45,7 +45,6 @@ AnalysisGraph AnalysisGraph::generate_random_CAG(unsigned int num_nodes,
   int src_idx = 0;
 
   for (rand_node[1] = 1; rand_node[1] < num_nodes; rand_node[1]++) {
-    rand_node.clear();
     sample(cag_nodes.begin(), cag_nodes.end(), rand_node.begin(), 1, G.rand_num_generator);
     cag_nodes.push_back(rand_node[1]);
 
@@ -53,7 +52,8 @@ AnalysisGraph AnalysisGraph::generate_random_CAG(unsigned int num_nodes,
     source = to_string(rand_node[src_idx]);
     target = to_string(rand_node[1 - src_idx]);
 
-    sample(adjectives.begin(), adjectives.end(), rand_adjectives.begin(), 2, G.rand_num_generator);
+    sample(adjectives.begin(), adjectives.end(), rand_adjectives.begin(), 1, G.rand_num_generator);
+    sample(adjectives.begin(), adjectives.end(), rand_adjectives.begin() + 1, 1, G.rand_num_generator);
     polarity = G.uni_dist(G.rand_num_generator) < 0.5 ? 1 : -1;
 
     auto causal_fragment =
@@ -77,7 +77,8 @@ AnalysisGraph AnalysisGraph::generate_random_CAG(unsigned int num_nodes,
                    G.get_vertex_id(target), G.graph);
     }
 
-    sample(adjectives.begin(), adjectives.end(), rand_adjectives.begin(), 2, G.rand_num_generator);
+    sample(adjectives.begin(), adjectives.end(), rand_adjectives.begin(), 1, G.rand_num_generator);
+    sample(adjectives.begin(), adjectives.end(), rand_adjectives.begin() + 1, 1, G.rand_num_generator);
     polarity = G.uni_dist(G.rand_num_generator) < 0.5 ? 1 : -1;
 
     auto causal_fragment =
@@ -114,8 +115,6 @@ void AnalysisGraph::initialize_random_CAG(unsigned int num_obs,
   this->set_transition_matrix_from_betas();
   this->transition_matrix_collection.clear();
   this->initial_latent_state_collection.clear();
-  // TODO: We are using this variable for two different purposes.
-  // create another variable.
   this->res = 1;
   this->transition_matrix_collection = vector<Eigen::MatrixXd>(this->res);
   this->initial_latent_state_collection = vector<Eigen::VectorXd>(this->res);
@@ -139,6 +138,8 @@ void AnalysisGraph::generate_synthetic_data(unsigned int num_obs,
     Node& n = (*this)[v];
     sample(periods.begin(), periods.end(), rand_period.begin(), 1, this->rand_num_generator);
     n.period = rand_period[0];
+    n.generated_latent_centers_for_a_period = vector<double>(max_samples_per_period, 0);
+    n.generated_latent_spreads_for_a_period = vector<double>(max_samples_per_period, 0);
     int gap_size = max_samples_per_period / n.period;
     int offset = 0; // 0 <= offset < period
     vector<int> filled_months;
@@ -223,14 +224,14 @@ void AnalysisGraph::interpolate_missing_months(vector<int> &filled_months, Node 
         n.generated_latent_centers_for_a_period[(month_start + month_missing) % 12] =
             ((num_missing_months - month_missing + 1) *
             n.generated_latent_centers_for_a_period[month_start] +
-            (month_missing)*n
+            (month_missing) * n
             .generated_latent_centers_for_a_period[month_end]) /
             (num_missing_months + 1);
 
         n.generated_latent_spreads_for_a_period[(month_start + month_missing) % 12] =
             ((num_missing_months - month_missing + 1) *
             n.generated_latent_spreads_for_a_period[month_start] +
-            (month_missing)*n
+            (month_missing) * n
             .generated_latent_spreads_for_a_period[month_end]) /
             (num_missing_months + 1);
       }
