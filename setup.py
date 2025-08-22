@@ -108,7 +108,7 @@ setup(
         "matplotlib",
         "seaborn>=0.10.0",
         "pandas",
-        "future==0.16.0",
+        "future==1.0.0",
         "networkx",
         "pygraphviz",
         "dataclasses",
